@@ -25,7 +25,7 @@ export function Navigation() {
           <div className="flex items-center space-x-8">
             <Link href="/dashboard" className="flex items-center space-x-2">
               <Activity className="h-6 w-6 text-blue-600" />
-              <span className="font-bold text-xl">MedScan</span>
+              <span className="font-bold text-xl">Pulse Vision</span>
             </Link>
 
             <div className="hidden md:flex items-center space-x-6">

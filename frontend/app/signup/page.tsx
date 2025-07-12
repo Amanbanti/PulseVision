@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -12,21 +10,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Activity} from "lucide-react"
 import Link from "next/link"
 
-export default function LoginPage() {
+export default function SignUpPage() {
+  const router = useRouter()
+
+  const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [role, setRole] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (password !== confirmPassword) {
+      alert("Passwords do not match")
+      return
+    }
+
     setIsLoading(true)
 
-    // Simulate login
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    // Simulate account creation
+    await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    router.push("/dashboard")
+    router.push("/dashboard") // Or redirect to login
   }
 
   return (
@@ -36,17 +43,28 @@ export default function LoginPage() {
           <div className="flex justify-center mb-4">
             <Activity className="h-12 w-12 text-blue-600" />
           </div>
-          <CardTitle className="text-2xl">Welcome to Pulse Vision</CardTitle>
-          <CardDescription>Sign in to access your medical imaging platform</CardDescription>
+          <CardTitle className="text-2xl">Create an Account</CardTitle>
+          <CardDescription>Register to access PulseVision</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Full Name</Label>
+              <Input
+                id="fullName"
+                placeholder="Dr. Hana Belay"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="doctor@hospital.et"
+                placeholder="radiologist@hospital.et"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -60,6 +78,17 @@ export default function LoginPage() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
@@ -79,16 +108,15 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
-          <p className="text-sm text-center text-muted-foreground mt-4">
-            Don't have an account?{" "}
-            <Link href="/signup" className="text-blue-600 hover:underline">
-              Sign up
-            </Link>
-          </p>
-
+             <p className="text-sm text-center text-muted-foreground mt-4">
+                Already have an account?{" "}
+                <Link href="/login" className="text-blue-600 hover:underline">
+                    Sign in
+                </Link>
+             </p>
         </CardContent>
       </Card>
     </div>

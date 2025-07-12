@@ -8,9 +8,9 @@ import { Navigation } from "@/components/navigation"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "MedScan - Medical Imaging Platform",
+  title: "PulseVision - Medical Imaging Platform",
   description: "AI-powered medical scan analysis for Ethiopian healthcare professionals",
-    generator: 'v0.dev'
+
 }
 
 export default function RootLayout({
