@@ -87,7 +87,7 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
         user.name = req.body.name || user.name;
         user.email = req.body.email || user.email;
     
-        const emailExists = await User.find({ email: req.body.email });
+        const emailExists = await User.find({ email: user.email, _id: { $ne: user._id } });
         if (emailExists.length > 0) {
             return res.status(400).json({ message: 'Email already exists!' });
         }

@@ -20,6 +20,9 @@ export default function SettingsPage() {
     const [newPassword, setNewPassword] = useState("")
     const [currentPassword, setCurrentPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
+    const [showConfirmModal, setShowConfirmModal] = useState(false)
+    const [showPasswordModal, setShowPasswordModal] = useState(false)
+
 
 
     const updateProfileHandler = () =>{
@@ -74,9 +77,32 @@ export default function SettingsPage() {
               onChange={(e) => setEmail(e.target.value)} />
             </div>
    
-            <Button onClick={updateProfileHandler} disabled={isUpdatingProfile} >
-              {isUpdatingProfile ? "Updating..." : "Update Profile"}
-            </Button>
+            <Button onClick={() => setShowConfirmModal(true)} disabled={isUpdatingProfile}>
+            {isUpdatingProfile ? "Updating..." : "Update Profile"}
+          </Button>
+
+            {showConfirmModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-sm">
+                      <h2 className="text-lg font-semibold mb-4">Are you sure?</h2>
+                      <p className="text-sm text-muted-foreground mb-6">This will update your profile information.</p>
+                      <div className="flex justify-end gap-4">
+                        <Button variant="outline" onClick={() => setShowConfirmModal(false)}>
+                          No
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            updateProfileHandler()
+                            setShowConfirmModal(false)
+                          }}
+                          disabled={isUpdatingProfile}
+                        >
+                          {isUpdatingProfile ? "Updating..." : "Yes"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
           </CardContent>
         </Card>
 
@@ -151,9 +177,32 @@ export default function SettingsPage() {
                 required
                 />
             </div>
-            <Button onClick={updatePasswordHandler} disabled={isUpdatePassword}>
+            <Button onClick={()=> setShowPasswordModal(true)} disabled={isUpdatePassword}>
               {isUpdatePassword ? "Updating Password..." : "Update Password"}
             </Button>
+            {showPasswordModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                  <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-xl w-full max-w-sm">
+                    <h2 className="text-lg font-semibold mb-4">Are you sure?</h2>
+                    <p className="text-sm text-muted-foreground mb-6">This will update your password.</p>
+                    <div className="flex justify-end gap-4">
+                      <Button variant="outline" onClick={() => setShowPasswordModal(false)}>
+                        No
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          updatePasswordHandler()
+                          setShowPasswordModal(false)
+                        }}
+                        disabled={isUpdatingProfile}
+                      >
+                        {isUpdatingProfile ? "Updating..." : "Yes"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
           </CardContent>
         </Card>
       </div>
