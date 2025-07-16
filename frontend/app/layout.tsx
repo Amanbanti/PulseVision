@@ -4,13 +4,13 @@ import { Inter } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navigation } from "@/components/navigation"
+import { Toaster } from "react-hot-toast"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "PulseVision - Medical Imaging Platform",
   description: "AI-powered medical scan analysis for Ethiopian healthcare professionals",
-
 }
 
 export default function RootLayout({
@@ -24,6 +24,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
           <div className="min-h-screen bg-background">
             <Navigation />
+            <Toaster position="top-right" reverseOrder={false} />
             {children}
           </div>
         </ThemeProvider>
