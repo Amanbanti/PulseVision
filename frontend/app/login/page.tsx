@@ -12,19 +12,24 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Activity} from "lucide-react"
 import Link from "next/link"
 
+import { useAuthStore } from "@/state/useAuthStore"
+import { set } from "date-fns"
+
+
 export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
+  const {isLoggingIn,login} = useAuthStore()
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
 
+    login({ email, password, role })
     // Simulate login
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    await new Promise((resolve) => setTimeout(resolve, 4000))
 
     router.push("/dashboard")
   }
@@ -78,8 +83,8 @@ export default function LoginPage() {
               </Select>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+            <Button type="submit" className="w-full" disabled={isLoggingIn}>
+              {isLoggingIn ? "Signing in..." : "Sign In"}
             </Button>
           </form>
           <p className="text-sm text-center text-muted-foreground mt-4">

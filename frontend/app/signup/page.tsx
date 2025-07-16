@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Activity} from "lucide-react"
 import Link from "next/link"
+import toast from "react-hot-toast"
+import { useAuthStore } from "@/state/useAuthStore"
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -16,22 +18,23 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+
+  const {isSigningUp,signup} = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     if (password !== confirmPassword) {
-      alert("Passwords do not match")
+      toast.error("Passwords do not match")
       return
     }
 
-    setIsLoading(true)
+    signup({name:fullName,email,password})
 
     // Simulate account creation
     await new Promise((resolve) => setTimeout(resolve, 1500))
 
-    router.push("/dashboard") // Or redirect to login
+    router.push("/dashboard") 
   }
 
   return (
@@ -92,8 +95,8 @@ export default function SignUpPage() {
             </div>
 
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Sign Up"}
+            <Button type="submit" className="w-full" disabled={isSigningUp}>
+              {isSigningUp ? "Creating account..." : "Sign Up"}
             </Button>
           </form>
              <p className="text-sm text-center text-muted-foreground mt-4">
