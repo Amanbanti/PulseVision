@@ -86,11 +86,13 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     if (user) {
         user.name = req.body.name || user.name;
         user.email = req.body.email || user.email;
+    
+        const emailExists = await User.find({ email: req.body.email });
+        if (emailExists.length > 0) {
+            return res.status(400).json({ message: 'Email already exists!' });
+        }
+        
 
-        if (req.body.password) {
-            user.password = req.body.password;
-
-            }
 
         const updatedUser = await user.save();
 
@@ -105,6 +107,16 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
     }
 });
 
+export const updatePassword = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (user && (await user.matchPassword(req.body.currentPassword))) {
+        user.password = req.body.newPassword;
+        await user.save();
+        res.status(200).json({ message: 'Password updated successfully!' });
+    } else {
+        res.status(400).json({ message: 'Invalid current password!' });
+    }
+});
 
 
 

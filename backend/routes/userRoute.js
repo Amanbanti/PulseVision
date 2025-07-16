@@ -8,7 +8,8 @@ import {
     getUsers,
     deleteUser,
     updateUserRole,
-    checkAuth
+    checkAuth,
+    updatePassword
     
     } from '../controllers/userController.js'
 
@@ -24,8 +25,10 @@ router.post('/',registerUser);
 router.post('/logout',logoutUser);
 router.post('/login', authUser);
 router.put('/profile', protect, updateUserProfile);
+router.put('/update-password', protect, updatePassword);
 router.delete('/:id',protect,admin,  deleteUser);
 router.put('/:id',protect,admin,  updateUserRole);
+
 
 
 export default router;
