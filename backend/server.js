@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import userRoute from './routes/userRoute.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -36,8 +37,7 @@ app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
 
 
-// Users Routes
-// app.use('/api/users', userRoute);
+app.use('/api/users', userRoute);
 
 
 
