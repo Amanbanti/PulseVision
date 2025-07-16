@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import userRoute from './routes/userRoute.js';
-
+import cors from 'cors';
 // Load environment variables from .env file
 dotenv.config();
 
@@ -13,6 +13,13 @@ const app = express();
 
 
 const port = process.env.PORT || 5000;
+
+// Allow frontend to talk to backend
+app.use(cors({
+    origin: 'http://localhost:3000', // React or Next.js frontend
+    credentials: true,               // Needed for sending cookies
+  }))
+  
 
 // Connect to the MongoDB database
 const startServer = async () => {
