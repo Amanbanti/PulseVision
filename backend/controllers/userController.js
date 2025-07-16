@@ -2,6 +2,7 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import User from '../models/userModel.js';
 import { generateToken } from "../utils/generateToken.js";
+import jwt from "jsonwebtoken";
 
 
 export const authUser = asyncHandler(async (req, res) => {
@@ -170,3 +171,28 @@ export const updateUserRole = asyncHandler (async (req, res) =>{
        res.status(404).json({ message :'User not found!' }) 
     }
 } )
+
+
+
+
+export const checkAuth = asyncHandler(async (req, res) => {
+    const token = req.cookies.jwt;
+  
+    if (!token) {
+      return res.status(200).json({ user:"null"})
+    }
+  
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET)
+      const user = await User.findById(decoded.userId).select("-password")
+      if (!user) {
+        return res.status(404).json({ message: "User not found" })
+      }
+  
+      res.status(200).json({ user }) // wrapped for clarity
+    } catch (err) {
+      console.error("JWT decode failed:", err)
+      res.status(401).json({ message: "Invalid token" })
+    }
+  })
+  
