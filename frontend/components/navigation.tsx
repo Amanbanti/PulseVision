@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button"
 import { Home, Upload, Users, Settings, LogOut, Moon, Sun, Activity } from "lucide-react"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
+import { useAuthStore } from "@/state/useAuthStore"
+import router from "next/router"
+
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -18,16 +21,37 @@ export function Navigation() {
   const pathname = usePathname()
   const { theme, setTheme } = useTheme()
 
+  
+const { authUser,logout } = useAuthStore()
+ 
+const logoutHandler = async () => {
+  try {
+    await logout()
+    router.push("/login")
+  } catch (error) {
+    console.error("Logout error:", error)
+  }
+}
+
+
   return (
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center space-x-8">
+          {authUser === null ? ( 
+            <div className="flex items-center space-x-2">
+              <Activity className="h-6 w-6 text-blue-600" />
+              <span className="font-bold text-xl">Pulse Vision</span>
+            </div>
+          ) : (
             <Link href="/dashboard" className="flex items-center space-x-2">
               <Activity className="h-6 w-6 text-blue-600" />
               <span className="font-bold text-xl">Pulse Vision</span>
             </Link>
-
+          )}
+           
+         {authUser && 
             <div className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link
@@ -43,6 +67,7 @@ export function Navigation() {
                 </Link>
               ))}
             </div>
+        }
           </div>
 
           <div className="flex items-center space-x-4">
@@ -52,10 +77,13 @@ export function Navigation() {
               <span className="sr-only">Toggle theme</span>
             </Button>
 
-            <Button variant="ghost" size="sm">
+            {authUser && (
+            <Button variant="ghost" size="sm" onClick={logoutHandler}>
               <LogOut className="h-4 w-4 mr-2" />
               Logout
             </Button>
+
+            ) }
           </div>
         </div>
       </div>
