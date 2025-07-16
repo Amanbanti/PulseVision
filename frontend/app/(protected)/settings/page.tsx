@@ -1,11 +1,43 @@
+"use client"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Separator } from "@/components/ui/separator"
+import { useState } from "react"
+import toast from "react-hot-toast"
+
+import { useAuthStore } from "@/state/useAuthStore"
 
 export default function SettingsPage() {
+  const { authUser, isUpdatingProfile, updateProfile,updatePassword,isUpdatePassword } = useAuthStore()
+
+
+    const [name, setName] = useState(authUser?.name || "")
+    const [email, setEmail] = useState(authUser?.email || "")
+    const [newPassword, setNewPassword] = useState("")
+    const [currentPassword, setCurrentPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+
+
+    const updateProfileHandler = () =>{
+        updateProfile({ name, email })
+        // Simulate profile update
+        setTimeout(() => {
+            console.log("Profile updated")
+        }, 1500)
+    }
+
+    const updatePasswordHandler = () =>{
+      if (newPassword !== confirmPassword) {
+        toast.error("Passwords do not match")
+        return
+      }
+      updatePassword({currentPassword, newPassword})
+    }
+
   return (
     <div className="container mx-auto p-6 max-w-4xl">
       <div className="mb-8">
@@ -22,23 +54,29 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" defaultValue="Abebe" />
+                <Label htmlFor="firstName">Name</Label>
+                <Input      
+                  id="name"
+                  placeholder="Enter the name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" defaultValue="Tadesse" />
-              </div>
+    
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue="abebe.tadesse@hospital.et" />
+              <Input 
+              id="email" 
+              type="email"
+              placeholder="Enter the email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" defaultValue="+251 911 123 456" />
-            </div>
-            <Button>Save Changes</Button>
+   
+            <Button onClick={updateProfileHandler} disabled={isUpdatingProfile} >
+              {isUpdatingProfile ? "Updating..." : "Update Profile"}
+            </Button>
           </CardContent>
         </Card>
 
@@ -82,17 +120,40 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
-              <Input id="currentPassword" type="password" />
+              <Input 
+              id="currentPassword" 
+              type="password" 
+              value={currentPassword} 
+              placeholder="Enter Current Password"
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="newPassword">New Password</Label>
-              <Input id="newPassword" type="password" />
+              <Input 
+              id="newPassword" 
+              type="password"
+              value={newPassword}
+              placeholder="Enter New Password"
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input id="confirmPassword" type="password" />
+              <Input 
+                id="confirmPassword" 
+                type="password"
+                value={confirmPassword}
+                placeholder="Confirm New Password"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                />
             </div>
-            <Button>Update Password</Button>
+            <Button onClick={updatePasswordHandler} disabled={isUpdatePassword}>
+              {isUpdatePassword ? "Updating Password..." : "Update Password"}
+            </Button>
           </CardContent>
         </Card>
       </div>

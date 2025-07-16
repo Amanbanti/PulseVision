@@ -18,10 +18,13 @@ interface AuthStore {
   isSigningUp: boolean
   isCheckingAuth: boolean
   isUpdatingProfile: boolean
+  isUpdatePassword: boolean
   checkAuth: () => Promise<void>
   signup: (data: any) => Promise<void>
   login: (data: any) => Promise<void>
   logout: () => Promise<void>
+  updateProfile: (data: any) => Promise<void>
+  updatePassword: (data: any) => Promise<void>
 
 }
 
@@ -31,6 +34,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isSigningUp: false,
   isCheckingAuth: true,
   isUpdatingProfile: false,
+  isUpdatePassword: false,
 
 
 
@@ -99,5 +103,34 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     }
   },
 
+
+  // ✅ Update profile
+  updateProfile: async (data: any) => {
+    set({ isUpdatingProfile: true })
+    try {
+      const res = await axiosInstance.put("/users/profile", data)
+      set({ authUser: res.data })
+      toast.success("Profile updated successfully")
+    } catch (err) {
+      const errorMessage = (err as any)?.response?.data?.message || "Profile update failed";
+      toast.error(errorMessage);
+    } finally {
+      set({ isUpdatingProfile: false })
+    }
+  },
+
+  // ✅ Update password
+  updatePassword: async (data: any) => {
+    set({ isUpdatePassword: true })
+    try {
+      const res = await axiosInstance.put("/users/update-password", data)
+      toast.success("Password updated successfully")
+    } catch (err) {
+      const errorMessage = (err as any)?.response?.data?.message || "Password update failed";
+      toast.error(errorMessage);
+    } finally {
+      set({ isUpdatePassword: false })
+    }
+  }
  
 }))
