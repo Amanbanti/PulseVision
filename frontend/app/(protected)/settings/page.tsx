@@ -4,8 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 import toast from "react-hot-toast"
 
@@ -106,37 +104,6 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Notification Preferences</CardTitle>
-            <CardDescription>Configure how you receive notifications</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive email alerts for new scan results</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>SMS Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive SMS alerts for urgent cases</p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Desktop Notifications</Label>
-                <p className="text-sm text-muted-foreground">Show browser notifications</p>
-              </div>
-              <Switch />
-            </div>
-          </CardContent>
-        </Card>
 
         <Card>
           <CardHeader>
