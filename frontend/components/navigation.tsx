@@ -10,6 +10,7 @@ import { useAuthStore } from "@/state/useAuthStore"
 import router from "next/router"
 
 
+
 const navItems = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/upload", label: "Upload", icon: Upload },
@@ -32,6 +33,8 @@ const logoutHandler = async () => {
     console.error("Logout error:", error)
   }
 }
+
+
 
 
   return (
@@ -78,10 +81,21 @@ const logoutHandler = async () => {
             </Button>
 
             {authUser && (
-            <Button variant="ghost" size="sm" onClick={logoutHandler}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+    
+              <div>
+                  {authUser?.role === "admin" && (
+                      <Button variant="ghost" size="sm">
+                           <Link href="/admin" className="flex items-center">
+                            <span className="font-bold text-md">Admin Panel</span>
+                          </Link>
+                      </Button>
+                  )}
+                  <Button variant="ghost" size="sm" onClick={logoutHandler}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Logout
+                  </Button>
+              </div>
+           
 
             ) }
           </div>
