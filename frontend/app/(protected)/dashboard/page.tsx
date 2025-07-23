@@ -4,14 +4,60 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Activity, AlertTriangle, Upload, Users, TrendingUp, Calendar } from "lucide-react"
-import { mockUser, mockScans } from "@/lib/mock-data"
+import { CardSkeleton } from "@/components/CardSkeleton"
+import { RecentScansSkeleton } from "@/components/CardSkeleton"
 import { formatDate } from "@/lib/utils"
 import { useAuthStore } from "@/state/useAuthStore"
+import { useEffect } from "react"
+import { useState } from "react"
+import { axiosInstance } from "@/lib/axios"
+
+interface MetricsData {
+  totalScans: number;
+  abnormalCases: number;
+  percentageChange: number;
+  successRate:number;
+  abnormalPercentage:number;
+  lastUpload: string;
+  threerecentScans: {
+    fullName: string;
+    scanType: string;
+    uploadDate: string;
+    isAbnormal: boolean;
+    confidence: number;
+  }[];
+}
+
+
 
 export default function DashboardPage() {
-  const totalScans = mockScans.length
-  const abnormalCases = mockScans.filter((scan) => scan.abnormal).length
-  const lastUpload = mockScans[0]?.uploadDate
+
+  const [data, setData] = useState<MetricsData | null>(null);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get("/patients/metrics"); 
+      setData(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+    };
+    fetchData();
+  }, []);
+
+
+  const totalScans = data?.totalScans || 0
+  const abnormalCases = data?.abnormalCases || 0
+  const abnormalPercentage = data?.abnormalPercentage || 0
+  const percentageChange = data?.percentageChange || 0
+  const successRate = data?.successRate || 0
+  const lastUpload = data?.lastUpload || "N/A"
+  const threerecentScans = data?.threerecentScans || []
 
   const {authUser} = useAuthStore()
 
@@ -41,79 +87,112 @@ export default function DashboardPage() {
 
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Scans</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalScans}</div>
-            <p className="text-xs text-muted-foreground">
-              <TrendingUp className="inline h-3 w-3 mr-1" />
-              +12% from last month
-            </p>
-          </CardContent>
-        </Card>
+            {loading ? 
+            
+              <CardSkeleton/>
+            
+            :(
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Scans</CardTitle>
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{totalScans}</div>
+                  <p className="text-xs text-muted-foreground">
+                    <TrendingUp className="inline h-3 w-3 mr-1" />
+                    +{percentageChange}% from last month
+                  </p>
+                </CardContent>
+              </Card>
+            ) } 
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Abnormal Cases</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{abnormalCases}</div>
-            <p className="text-xs text-muted-foreground">
-              {((abnormalCases / totalScans) * 100).toFixed(1)}% of total scans
-            </p>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Last Upload</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatDate(lastUpload)}</div>
-            <p className="text-xs text-muted-foreground">Most recent scan upload</p>
-          </CardContent>
-        </Card>
+              { loading ? 
+              <CardSkeleton />
+              : (
 
-        <Card>
+                <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Abnormal Cases</CardTitle>
+                  <AlertTriangle className="h-4 w-4 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">{abnormalCases}</div>
+                  <p className="text-xs text-muted-foreground">
+                    {abnormalPercentage}% of total scans
+                  </p>
+                </CardContent>
+              </Card>
+
+              )}
+
+
+        {loading ? 
+          <CardSkeleton />
+         : 
+        (
+          
+            <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Last Upload</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatDate(lastUpload)}</div>
+              <p className="text-xs text-muted-foreground">Most recent scan upload</p>
+            </CardContent>
+          </Card>
+        )}
+          
+      
+
+        {loading ? 
+          <CardSkeleton />
+        :(
+          <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">94.2%</div>
+            <div className="text-2xl font-bold text-green-600">{successRate}%</div>
             <p className="text-xs text-muted-foreground">AI diagnostic accuracy</p>
           </CardContent>
         </Card>
+
+        )}
+
+
       </div>
 
       {/* Recent Scans */}
-      <Card>
+
+      {loading ?
+        <RecentScansSkeleton />
+      : (
+        <Card>
         <CardHeader>
           <CardTitle>Recent Scans</CardTitle>
           <CardDescription>Latest medical scans processed by the system</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {mockScans.slice(0, 3).map((scan) => (
-              <div key={scan.id} className="flex items-center justify-between p-4 border rounded-lg">
+            {threerecentScans.map((scan) => (
+              <div key={scan.fullName} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
                     <Activity className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
-                    <p className="font-medium">{scan.patientName}</p>
+                    <p className="font-medium">{scan.fullName}</p>
                     <p className="text-sm text-muted-foreground">
                       {scan.scanType.toUpperCase()} • {formatDate(scan.uploadDate)}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant={scan.abnormal ? "destructive" : "secondary"}>{scan.diagnosis}</Badge>
+                  <Badge variant={scan.isAbnormal ? "destructive" : "secondary"}>{scan.isAbnormal ?"Abnormal" : "Normal"}</Badge>
                   <span className="text-sm text-muted-foreground">{scan.confidence}%</span>
                 </div>
               </div>
@@ -126,6 +205,8 @@ export default function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+      )}
+      
     </div>
     
   )
