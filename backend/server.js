@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import userRoute from './routes/userRoute.js';
 import cors from 'cors';
+import patientRoutes from "./routes/patientRoutes.js"
 // Load environment variables from .env file
 dotenv.config();
 
@@ -24,7 +25,7 @@ app.use(cors({
 // Connect to the MongoDB database
 const startServer = async () => {
   try {
-    await connectDB();  // Ensure MongoDB connection is successful
+    await connectDB();  
     console.log('Connected to MongoDB successfully');
 
     // Start the server
@@ -42,9 +43,12 @@ const startServer = async () => {
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
+app.use("/uploads", express.static("uploads"));
+
 
 
 app.use('/api/users', userRoute);
+app.use("/api/patients", patientRoutes);
 
 
 
