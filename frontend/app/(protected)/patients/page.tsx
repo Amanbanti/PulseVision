@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,23 +15,67 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Search, Filter, Eye, Download } from "lucide-react"
-import { mockScans } from "@/lib/mock-data"
 import { formatDate, getConfidenceColor } from "@/lib/utils"
 import Image from "next/image"
+import { axiosInstance } from "@/lib/axios"
+import toast from "react-hot-toast"
+import ScanReportSkeleton from '@/components/CardSkeleton'
+
 
 export default function PatientsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [scanTypeFilter, setScanTypeFilter] = useState("all")
   const [diagnosisFilter, setDiagnosisFilter] = useState("all")
+  const [loading, setLoading] = useState(false)
+  const [data, setData] = useState<any[]>([])
   const [selectedScan, setSelectedScan] = useState<any>(null)
+  const [meta, setMeta] = useState<{
+    page: number;
+    limit: number;
+    totalItems: number;
+    totalPages: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+  } | null>(null);
+  
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [sort, setSort] = useState("-createdAt");
 
-  const filteredScans = mockScans.filter((scan) => {
-    const matchesSearch = scan.patientName.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesScanType = scanTypeFilter === "all" || scan.scanType === scanTypeFilter
-    const matchesDiagnosis = diagnosisFilter === "all" || scan.diagnosis === diagnosisFilter
 
-    return matchesSearch && matchesScanType && matchesDiagnosis
-  })
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+  
+        const { data } = await axiosInstance.get("/patients", {
+          params: {
+            page,
+            limit,
+            search: searchTerm || undefined,
+            scanType: scanTypeFilter === "all" ? undefined : scanTypeFilter,
+            diagnosis: diagnosisFilter === "all" ? undefined : diagnosisFilter,
+            sort, // e.g. "-createdAt"
+          },
+        });
+  
+        // backend returns { data: [...], meta: {...} }
+        setData(data.data);
+        setMeta(data.meta);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        toast.error("Failed to fetch patient records. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchData();
+  }, [page, limit, searchTerm, scanTypeFilter, diagnosisFilter, sort]);
+
+
+
 
   return (
     <div className="container mx-auto p-6">
@@ -63,9 +107,8 @@ export default function PatientsPage() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="x-ray">X-Ray</SelectItem>
-                <SelectItem value="ct">CT Scan</SelectItem>
-                <SelectItem value="ultrasound">Ultrasound</SelectItem>
+                <SelectItem value="xray">X-Ray</SelectItem>
+                <SelectItem value="ctscan">CT Scan</SelectItem>
               </SelectContent>
             </Select>
 
@@ -76,8 +119,7 @@ export default function PatientsPage() {
               <SelectContent>
                 <SelectItem value="all">All Diagnoses</SelectItem>
                 <SelectItem value="Normal">Normal</SelectItem>
-                <SelectItem value="Pneumonia">Pneumonia</SelectItem>
-                <SelectItem value="Gallstones">Gallstones</SelectItem>
+                <SelectItem value="Abnormal">Abnormal</SelectItem>
               </SelectContent>
             </Select>
 
@@ -100,134 +142,159 @@ export default function PatientsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Scan Records</CardTitle>
-          <CardDescription>{filteredScans.length} records found</CardDescription>
+          <CardDescription>{meta?.totalItems} records found</CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b">
-                  <th className="text-left p-4 font-medium">Patient</th>
-                  <th className="text-left p-4 font-medium">Scan Type</th>
-                  <th className="text-left p-4 font-medium">Date</th>
-                  <th className="text-left p-4 font-medium">Diagnosis</th>
-                  <th className="text-left p-4 font-medium">Confidence</th>
-                  <th className="text-left p-4 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredScans.map((scan) => (
-                  <tr key={scan.id} className="border-b hover:bg-muted/50">
-                    <td className="p-4">
-                      <div>
-                        <p className="font-medium">{scan.patientName}</p>
-                        <p className="text-sm text-muted-foreground">ID: {scan.patientId}</p>
-                      </div>
-                    </td>
-                    <td className="p-4">
-                      <Badge variant="outline">{scan.scanType.toUpperCase()}</Badge>
-                    </td>
-                    <td className="p-4 text-sm">{formatDate(scan.uploadDate)}</td>
-                    <td className="p-4">
-                      <Badge variant={scan.abnormal ? "destructive" : "secondary"}>{scan.diagnosis}</Badge>
-                    </td>
-                    <td className="p-4">
-                      <span className={getConfidenceColor(scan.confidence || 0)}>{scan.confidence}%</span>
-                    </td>
-                    <td className="p-4">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" onClick={() => setSelectedScan(scan)}>
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Report
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                          <DialogHeader>
-                            <DialogTitle>Scan Report - {scan.patientName}</DialogTitle>
-                            <DialogDescription>Detailed analysis and diagnostic information</DialogDescription>
-                          </DialogHeader>
 
-                          {selectedScan && (
-                            <div className="grid gap-6 md:grid-cols-2">
-                              <div className="space-y-4">
-                                <div>
-                                  <h3 className="font-semibold mb-2">Patient Information</h3>
-                                  <div className="space-y-1 text-sm">
-                                    <p>
-                                      <span className="font-medium">Name:</span> {selectedScan.patientName}
-                                    </p>
-                                    <p>
-                                      <span className="font-medium">Patient ID:</span> {selectedScan.patientId}
-                                    </p>
-                                    <p>
-                                      <span className="font-medium">Scan Type:</span>{" "}
-                                      {selectedScan.scanType.toUpperCase()}
-                                    </p>
-                                    <p>
-                                      <span className="font-medium">Date:</span> {formatDate(selectedScan.uploadDate)}
-                                    </p>
+
+        {loading ? <ScanReportSkeleton /> : (
+
+              <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-4 font-medium">Patient</th>
+                      <th className="text-left p-4 font-medium">Scan Type</th>
+                      <th className="text-left p-4 font-medium">Date</th>
+                      <th className="text-left p-4 font-medium">Diagnosis</th>
+                      <th className="text-left p-4 font-medium">Confidence</th>
+                      <th className="text-left p-4 font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.map((scan) => (
+                      <tr key={scan._id} className="border-b hover:bg-muted/50">
+                        <td className="p-4">
+                          <div>
+                            <p className="font-medium">{scan.fullName}</p>
+                            <p className="text-sm text-muted-foreground">ID: {scan._id}</p>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <Badge variant="outline">{scan.scanType.toUpperCase()}</Badge>
+                        </td>
+                        <td className="p-4 text-sm">{formatDate(scan.createdAt)}</td>
+                        <td className="p-4">
+                          <Badge variant={scan.isAbnormal ? "destructive" : "secondary"}>{scan.isAbnormal ? "Abnormal" : "Normal"}</Badge>
+                        </td>
+                        <td className="p-4">
+                          <span className={getConfidenceColor(scan.confidence || 0)}>{scan.confidence}%</span>
+                        </td>
+                        <td className="p-4">
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" size="sm" onClick={() => setSelectedScan(scan)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Report
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                              <DialogHeader>
+                                <DialogTitle>Scan Report - {scan.fullName}</DialogTitle>
+                                <DialogDescription>Detailed analysis and diagnostic information</DialogDescription>
+                              </DialogHeader>
+
+                              {selectedScan && (
+                                
+                                <div className="grid gap-6 md:grid-cols-2">
+                                  <div className="space-y-4">
+                                    <div>
+                                      <h3 className="font-semibold mb-2">Patient Information</h3>
+                                      <div className="space-y-1 text-sm">
+                                        <p>
+                                          <span className="font-medium">Name:</span> {selectedScan.fullName}
+                                        </p>
+                                        <p>
+                                          <span className="font-medium">Patient ID:</span> {selectedScan._id}
+                                        </p>
+                                        <p>
+                                          <span className="font-medium">Scan Type:</span>{" "}
+                                          {selectedScan.scanType.toUpperCase()}
+                                        </p>
+                                        <p>
+                                          <span className="font-medium">Date:</span> {formatDate(selectedScan.createdAt)}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    <div>
+                                      <h3 className="font-semibold mb-2">Diagnosis</h3>
+                                      <div className="space-y-2">
+                                        <div className="flex items-center space-x-2">
+                                          <Badge variant={selectedScan.isAbnormal ? "destructive" : "secondary"}>
+                                            {selectedScan.isAbnormal ? "Abnormal" : "Normal"}
+                                          </Badge>
+                                          <span className={`text-sm ${getConfidenceColor(selectedScan.confidence)}`}>
+                                            {selectedScan.confidence}% confidence
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                              
                                   </div>
-                                </div>
 
-                                <div>
-                                  <h3 className="font-semibold mb-2">Diagnosis</h3>
-                                  <div className="space-y-2">
-                                    <div className="flex items-center space-x-2">
-                                      <Badge variant={selectedScan.abnormal ? "destructive" : "secondary"}>
-                                        {selectedScan.diagnosis}
-                                      </Badge>
-                                      <span className={`text-sm ${getConfidenceColor(selectedScan.confidence)}`}>
-                                        {selectedScan.confidence}% confidence
-                                      </span>
+                                  <div>
+                                    <h3 className="font-semibold mb-2">Medical Image</h3>
+                                    <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                                      <Image
+                                        src={`${process.env.NEXT_PUBLIC_API_BASE_URL}/${selectedScan.scanImage.replace(/\\/g, "/")}`}
+                                        alt="Medical scan"
+                                        fill
+                                        className="object-cover"
+                                      />
+                                      
                                     </div>
                                   </div>
                                 </div>
+                              )}
 
-                                <div>
-                                  <h3 className="font-semibold mb-2">Recommendations</h3>
-                                  <ul className="text-sm space-y-1">
-                                    <li>• Follow-up examination recommended</li>
-                                    <li>• Monitor patient symptoms</li>
-                                    <li>• Consider additional imaging if symptoms persist</li>
-                                  </ul>
-                                </div>
-                              </div>
+                      
+                            </DialogContent>
+                          </Dialog>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                              <div>
-                                <h3 className="font-semibold mb-2">Medical Image</h3>
-                                <div className="relative w-full h-64 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                                  <Image
-                                    src={selectedScan.imageUrl || "/placeholder.svg"}
-                                    alt="Medical scan"
-                                    fill
-                                    className="object-cover"
-                                  />
-                                </div>
-                              </div>
-                            </div>
-                          )}
+              {data.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">No records found matching your criteria</div>
+              )}
+              </CardContent>
 
-                          <div className="flex justify-end space-x-2 mt-6">
-                            <Button variant="outline">
-                              <Download className="mr-2 h-4 w-4" />
-                              Download Report (PDF)
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+        )}
+        
+      </Card>
+
+
+      <div className="flex justify-between items-center mt-4">
+          <div>
+            <p>
+              Page {meta?.page ?? 1} of {meta?.totalPages ?? 1}
+            </p>
           </div>
 
-          {filteredScans.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">No records found matching your criteria</div>
-          )}
-        </CardContent>
-      </Card>
+          <div className="space-x-2">
+            <Button
+              variant="outline"
+              disabled={!meta?.hasPrevPage}
+              onClick={() => setPage((p) => Math.max(p - 1, 1))}
+            >
+              Previous
+            </Button>
+
+            <Button
+              variant="outline"
+              disabled={!meta?.hasNextPage}
+              onClick={() => setPage((p) => p + 1)}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
     </div>
   )
 }

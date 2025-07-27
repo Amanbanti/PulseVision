@@ -102,6 +102,8 @@ export default function UploadPage() {
     setAge("")
     setGender("")
     setScanType("")
+    setPhoneNumber("")
+    setAddress("")
     setFile(null)
     setUploadProgress(0)
     setIsUploading(false)
