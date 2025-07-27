@@ -37,7 +37,6 @@ PulseVision is an AI-powered medical imaging platform designed to help Ethiopian
 
 ## 📸 UI Preview
 
-<!-- Add screenshots here -->
 | Dashboard | Scan Upload | Report View |
 |----------|-------------|-------------|
 | ![Dashboard](docs/dashboard.png) | ![Upload](docs/upload.png) | ![Report](docs/report.png) |
@@ -47,65 +46,54 @@ PulseVision is an AI-powered medical imaging platform designed to help Ethiopian
 ## 🚀 Getting Started
 
 ### 1. Clone the repository
-
 ```bash
-git clone https://github.com/Amanbanti/PulseVision.git
+git clone [https://github.com/Amanbanti/PulseVision.git](https://github.com/Amanbanti/PulseVision.git)
 cd PulseVision
+```
 
-#!/usr/bin/env bash
-# run.sh — one-shot setup & start script for PulseVision (backend + frontend)
+### 2. Running the Backend (Server)
 
-set -euo pipefail
+Follow these steps to get the server running:
 
-REPO_URL="https://github.com/Amanbanti/PulseVision.git"
-PROJECT_DIR="PulseVision"
+1.  Navigate to the server directory:
+    ```bash
+    cd server
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Create a `.env` file and populate it based on the `env.example` file.
+4.  Start the development server:
+    ```bash
+    npm run dev
+    ```
 
-# 1) Clone
-if [ ! -d "$PROJECT_DIR" ]; then
-  git clone "$REPO_URL"
-fi
-cd "$PROJECT_DIR"
+### 3. Running the Frontend (Client)
 
-########################################
-# 2) Backend
-########################################
-echo "==> Setting up backend..."
-cd backend
-npm install
+Follow these steps to get the client running:
 
-# Create .env (edit the placeholders!)
-cat > .env <<'EOF'
-PORT=5001
-MONGO_URI=YOUR_MONGODB_URI_HERE
-JWT_SECRET=YOUR_SUPER_SECRET_KEY_HERE
-HUGGING_FACE_TOKEN=YOUR_HUGGING_FACE_TOKEN_HERE
-EOF
+1.  Navigate to the client directory from the root folder:
+    ```bash
+    cd client
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Create a `.env.local` file and populate it based on the `.env.example` file.
+4.  Start the development server:
+    ```bash
+    npm run dev
+    ```
 
-echo "Backend .env created. PLEASE EDIT it with real values before continuing."
-read -p "Press Enter to continue (or Ctrl+C to abort) ..."
+---
 
-# Start backend in background
-npm run dev &
-BACKEND_PID=$!
-echo "Backend started on PID $BACKEND_PID"
-cd ..
+## 📜 License
 
-########################################
-# 3) Frontend
-########################################
-echo "==> Setting up frontend..."
-cd frontend
-npm install
+This project is licensed under the MIT License.
 
-# Create .env.local
-cat > .env.local <<'EOF'
-NEXT_PUBLIC_API_BASE_URL=http://localhost:5001
-EOF
+**MIT License**
 
-# Start frontend (foreground)
-npm run dev
-
-# If frontend exits, bring backend down too
-kill $BACKEND_PID 2>/dev/null || true
-
+Copyright (c) 2024 Amanbanti
 
