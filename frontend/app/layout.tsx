@@ -6,6 +6,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Navigation } from "@/components/navigation"
 import { Toaster } from "react-hot-toast"
 
+import ClientAuthWrapper from "@/components/ClientAuthWrapper"
+
+
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
@@ -25,7 +28,9 @@ export default function RootLayout({
           <div className="min-h-screen bg-background">
             <Navigation />
             <Toaster position="top-right" reverseOrder={false} />
-            {children}
+              <ClientAuthWrapper>
+                 {children}
+            </ClientAuthWrapper>
           </div>
         </ThemeProvider>
       </body>
