@@ -1,5 +1,7 @@
 import Patient from "../models/patientModel.js";
+import asyncHandler from "../middleware/asyncHandler.js";
 import dayjs from 'dayjs';
+
 
 export const createPatient = async (req, res) => {
   try {
@@ -86,15 +88,59 @@ export const getPatientMetrics = async (req, res) => {
   }
 };
 
-// @desc    Get all patients
-export const getAllPatients = async (req, res) => {
-  try {
-    const patients = await Patient.find()
-    res.status(200).json(patients)
-  } catch (error) {
-    res.status(500).json({ message: error.message })
+
+export const getAllPatients = asyncHandler(async (req, res) => {
+  const {
+    page = "1",
+    limit = "10",
+    search = "",
+    scanType = "all",
+    diagnosis = "all",
+    sort = "-createdAt", // Optional sorting
+  } = req.query;
+
+  const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+  const limitNum = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100); // Max 100 per page
+
+  // Build query object dynamically
+  const query = {};
+
+  if (search.trim()) {
+    query.fullName = { $regex: search.trim(), $options: "i" };
   }
-}
+
+  if (scanType !== "all") {
+    query.scanType = scanType;
+  }
+
+  if (diagnosis !== "all") {
+    if( diagnosis === "Normal") {
+      query.isAbnormal = false;
+    } else if (diagnosis === "Abnormal") {
+      query.isAbnormal = true;
+    }
+  }
+
+  const totalItems = await Patient.countDocuments(query);
+
+  const scans = await Patient.find(query)
+    .sort(sort)
+    .skip((pageNum - 1) * limitNum)
+    .limit(limitNum);
+
+  res.status(200).json({
+    data: scans,
+    meta: {
+      page: pageNum,
+      limit: limitNum,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limitNum),
+      hasNextPage: pageNum * limitNum < totalItems,
+      hasPrevPage: pageNum > 1,
+    },
+  });
+});
+
 
 // @desc    Get a single patient by ID
 export const getPatientById = async (req, res) => {
