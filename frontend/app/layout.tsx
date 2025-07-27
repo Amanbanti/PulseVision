@@ -5,6 +5,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Navigation } from "@/components/navigation"
 import { Toaster } from "react-hot-toast"
+import { Activity } from "lucide-react"
 
 import ClientAuthWrapper from "@/components/ClientAuthWrapper"
 
@@ -14,6 +15,9 @@ const inter = Inter({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "PulseVision - Medical Imaging Platform",
   description: "AI-powered medical scan analysis for Ethiopian healthcare professionals",
+  icons: {
+    icon: "/activity.png", 
+  },
 }
 
 export default function RootLayout({
