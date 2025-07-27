@@ -14,7 +14,7 @@ export function formatDate(dateString: string) {
 }
 
 export function getConfidenceColor(confidence: number) {
-  if (confidence >= 90) return "text-green-600"
-  if (confidence >= 70) return "text-yellow-600"
+  if (confidence >= 80) return "text-green-600"
+  if (confidence >= 50) return "text-yellow-600"
   return "text-red-600"
 }
