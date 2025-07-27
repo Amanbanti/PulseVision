@@ -56,3 +56,54 @@ export function RecentScansSkeleton() {
       </Card>
     );
   }
+
+
+
+  export default function ScanReportSkeleton() {
+    return (
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-4 font-medium">Patient</th>
+                <th className="text-left p-4 font-medium">Scan Type</th>
+                <th className="text-left p-4 font-medium">Date</th>
+                <th className="text-left p-4 font-medium">Diagnosis</th>
+                <th className="text-left p-4 font-medium">Confidence</th>
+                <th className="text-left p-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(5)].map((_, index) => (
+                <tr key={index} className="border-b hover:bg-muted/50">
+                  <td className="p-4">
+                    <div>
+                      <Skeleton className="h-4 w-32 mb-2" />
+                      <Skeleton className="h-3 w-20" />
+                    </div>
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-24" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-5 w-20 rounded-full" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-12" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-8 w-24 rounded-md" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    );
+  }
+  
