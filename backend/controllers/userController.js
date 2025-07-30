@@ -134,13 +134,48 @@ export const getUserById = asyncHandler (async (req, res) =>{
 
 
 
-
-export const getUsers = asyncHandler (async (req, res) =>{
-    
-    const users = await User.find({}); // Fetch all users
-    res.status(200).json(users);
-
-});
+export const getAllUsers = async (req, res) => {
+    try {
+      const { search, page = 1, limit = 10 } = req.query;
+  
+      const filter = {};
+  
+      // 🔍 Search by name or email
+      if (search) {
+        filter.$or = [
+          { name: new RegExp(search, "i") },
+          { email: new RegExp(search, "i") },
+        ];
+      }
+  
+  
+      const pageNumber = parseInt(page);
+      const pageSize = parseInt(limit);
+      const skip = (pageNumber - 1) * pageSize;
+  
+      const total = await User.countDocuments(filter);
+  
+      const users = await User.find(filter)
+        .sort({ createdAt: -1 }) // sort by date joined
+        .skip(skip)
+        .limit(pageSize)
+  
+      res.status(200).json({
+        success: true,
+        count: users.length,
+        currentPage: pageNumber,
+        limit: pageSize,
+        totalPages: Math.ceil(total / pageSize),
+        totalUsers: total,
+        hasNextPage: pageNumber * pageSize < total,
+        hasPrevPage: pageNumber > 1,
+        users: users,
+      });
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  };
 
 
 
