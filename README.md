@@ -4,6 +4,10 @@ PulseVision is an AI-powered medical imaging platform designed to help Ethiopian
 
 ---
 
+## 🚀 Deployed On
+
+Frontend URL: [https://pulse-vision-mu.vercel.app](https://pulse-vision-mu.vercel.app)
+
 ## ✨ Features
 
 - 🔍 AI-based diagnosis for medical scans
@@ -82,7 +86,7 @@ Follow these steps to get the server running:
 
 1.  Navigate to the server directory:
     ```bash
-    cd server
+    cd backend
     ```
 2.  Install dependencies:
     ```bash
@@ -100,7 +104,7 @@ Follow these steps to get the client running:
 
 1.  Navigate to the client directory from the root folder:
     ```bash
-    cd client
+    cd fronted
     ```
 2.  Install dependencies:
     ```bash
