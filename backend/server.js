@@ -17,10 +17,13 @@ const port = process.env.PORT || 5000;
 
 // Allow frontend to talk to backend
 app.use(cors({
-    origin: 'http://localhost:3000', // React or Next.js frontend
-    credentials: true,               // Needed for sending cookies
-  }))
-  
+  origin: [
+    'http://localhost:3000',              // for local development
+    'https://pulse-vision-mu.vercel.app'  // for deployed frontend
+  ],
+  credentials: true,
+}));
+
 
 // Connect to the MongoDB database
 const startServer = async () => {
