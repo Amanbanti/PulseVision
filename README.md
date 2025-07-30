@@ -39,7 +39,7 @@ PulseVision is an AI-powered medical imaging platform designed to help Ethiopian
 
 | Dashboard | Scan Upload | Patient View | User View |
 |----------|-------------|-------------|
-| ![Dashboard](/dashboard.jpg) | ![Upload](/upload.jpg) | ![Patient](/patients.jpg) | ![User](/Users.jpg) |
+| ![Dashboard](/frontend/dashboard.jpg) | ![Upload](/frontend/upload.jpg) | ![Patient](/frontend/patients.jpg) | ![User](/frontend/Users.jpg) |
 
 ---
 
