@@ -1,13 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname,useRouter} from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Home, Upload, Users, Settings, LogOut, Moon, Sun, Activity } from "lucide-react"
 import { useTheme } from "next-themes"
 import { cn } from "@/lib/utils"
 import { useAuthStore } from "@/state/useAuthStore"
-import router from "next/router"
 
 
 
@@ -20,6 +19,7 @@ const navItems = [
 
 export function Navigation() {
   const pathname = usePathname()
+  const router = useRouter();
   const { theme, setTheme } = useTheme()
 
   
@@ -86,7 +86,7 @@ const logoutHandler = async () => {
                   {authUser?.role === "admin" && (
                       <Button variant="ghost" size="sm">
                            <Link href="/admin" className="flex items-center">
-                            <span className="font-bold text-md">Admin Panel</span>
+                            <span className="font-bold text-md">Manage User</span>
                           </Link>
                       </Button>
                   )}
