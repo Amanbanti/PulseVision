@@ -59,7 +59,7 @@ export function RecentScansSkeleton() {
 
 
 
-  export default function ScanReportSkeleton() {
+  export function ScanReportSkeleton() {
     return (
       <CardContent>
         <div className="overflow-x-auto">
@@ -106,4 +106,52 @@ export function RecentScansSkeleton() {
       </CardContent>
     );
   }
+
+
+
+  
+  export function UserTableSkeleton() {
+    return (
+      <CardContent>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                <th className="text-left p-4 font-medium">Name</th>
+                <th className="text-left p-4 font-medium">Email</th>
+                <th className="text-left p-4 font-medium">Role</th>
+                <th className="text-left p-4 font-medium">Date Joined</th>
+                <th className="text-left p-4 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...Array(8)].map((_, index) => (
+                <tr key={index} className="border-b hover:bg-muted/50">
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-32 mb-2" />
+                    <Skeleton className="h-3 w-20" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-40" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-24 rounded-full" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-4 w-28" />
+                  </td>
+                  <td className="p-4">
+                    <Skeleton className="h-8 w-24 rounded-md" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    );
+  }
+
+
+
   
