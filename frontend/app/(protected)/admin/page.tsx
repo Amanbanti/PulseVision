@@ -21,8 +21,8 @@ import {UserTableSkeleton} from "@/components/CardSkeleton"
 
 export default function  UsersPage() {
   const [searchTerm, setSearchTerm] = useState("")
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
+  const [deleteUser, setDeleteUser] = useState<User | null>(null);
 
 
 
@@ -41,6 +41,8 @@ export default function  UsersPage() {
     const [users, setUsers] = useState<User[]>([]);
 
   const [loading, setLoading] = useState(false);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   
   
   
@@ -71,25 +73,63 @@ export default function  UsersPage() {
     }, [page, limit, searchTerm]);
   
   
-
-
-  const handleAddUser = () => {
-   
-  }
-
   const handleEditUser = (user: User) => {
     setEditingUser(user)
   }
+  const DeletedUser = (user: User) => {
+    setDeleteUser(user)
+  }
+
+  const handleCloseDeletedDialog = () => {
+    setDeleteUser(null)
+  }
 
   const handleUpdateUser = () => {
+    if (!editingUser) return;
+    setUpdateLoading(true);
+
+    axiosInstance.put(`/users/${editingUser._id}`, {
+      role: editingUser.role,
+    })
+    .then(() => {
+      toast.success("User updated successfully");
+      setEditingUser(null);
+      setUpdateLoading(false);
+      // Optionally, refetch users or update state to reflect changes
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u._id === editingUser?._id ? { ...u, role: editingUser.role } : u
+        )
+      );
+    })
+    .catch((error) => {
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user. Please try again.");
+      setUpdateLoading(false);
+    });
    
   }
 
   const handleDeleteUser = (id: string) => {
-   
-  }
-
-  const toggleUserStatus = (user: User) => {
+    if (!deleteUser) return;
+    if(deleteUser.role == "admin") {
+      toast.error("Cannot delete an admin user");
+      return;
+    }
+    setDeleteLoading(true);
+    axiosInstance.delete(`/users/${id}`)
+      .then(() => {
+        toast.success("User deleted successfully");
+        setDeleteLoading(false);
+        setDeleteUser(null);
+        setUsers(users.filter(user => user._id !== id));
+      })
+      .catch((error) => {
+        console.error("Error deleting user:", error);
+        toast.error("Failed to delete user. Please try again.");
+        setDeleteLoading(false);
+        setDeleteUser(null);
+      });
    
   }
 
@@ -157,7 +197,7 @@ export default function  UsersPage() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDeleteUser(user._id)}
+                        onClick={() => DeletedUser(user)}
                         className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -187,23 +227,6 @@ export default function  UsersPage() {
           {editingUser && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="edit-name">Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editingUser.name}
-                  onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="edit-email">Email</Label>
-                <Input
-                  id="edit-email"
-                  type="email"
-                  value={editingUser.email}
-                  onChange={(e) => setEditingUser({ ...editingUser, email: e.target.value })}
-                />
-              </div>
-              <div>
                 <Label htmlFor="edit-role">Role</Label>
                 <Select
                   value={editingUser.role}
@@ -213,17 +236,46 @@ export default function  UsersPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="moderator">Moderator</SelectItem>
                     <SelectItem value="admin">Admin</SelectItem>
+                    <SelectItem value="radiologist">Radiologist</SelectItem>
+                    <SelectItem value="technician">Technician</SelectItem>
+                  
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleUpdateUser} className="w-full">
-                Update User
+              <Button onClick={handleUpdateUser}  className="w-full" disabled={updateLoading}>
+                {updateLoading ? "Updating..." : "Update User"}
+              
               </Button>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+
+       {/* Delete User Dialog */}
+      <Dialog open={!!deleteUser} onOpenChange={() => setDeleteUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+          </DialogHeader>
+          {deleteUser && (
+            <div className="space-y-4">
+             <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+             <div className="flex justify-end space-x-2 mt-4">
+               <Button variant="outline" onClick={handleCloseDeletedDialog}>
+                 Cancel
+               </Button>
+               <Button variant="destructive" onClick={() => handleDeleteUser(deleteUser._id)} disabled={deleteLoading}>
+                 <Trash2 className="h-4 w-4" />
+                 {deleteLoading ? "Deleting..." : "Delete User"}
+                
+               </Button>
+             </div>
+            </div>
+
+          )}
+         
         </DialogContent>
       </Dialog>
 
