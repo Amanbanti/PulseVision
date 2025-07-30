@@ -19,7 +19,7 @@ import { formatDate, getConfidenceColor } from "@/lib/utils"
 import Image from "next/image"
 import { axiosInstance } from "@/lib/axios"
 import toast from "react-hot-toast"
-import ScanReportSkeleton from '@/components/CardSkeleton'
+import {ScanReportSkeleton} from '@/components/CardSkeleton'
 
 
 export default function PatientsPage() {
